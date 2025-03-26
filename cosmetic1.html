@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmetic Shop</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        table {
+            width: 70%;
+            margin: 20px auto;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2b5d4;
+        }
+        button {
+            background-color: #ff69b4;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            cursor: pointer;
+        }
+        .delete-btn {
+            background-color: red;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        .selected {
+            color: green;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome to Our Cosmetic Shop</h1>
+    <table>
+        <tr>
+            <th>Product</th>
+            <th>Price</th>
+            <th>Action</th>
+            <th>Status</th>
+        </tr>
+        <tr>
+            <td>Lipstick</td>
+            <td>10 rupees</td>
+            <td><button onclick="buyProduct('Lipstick', 10, this)">Buy</button></td>
+            <td class="status"></td>
+        </tr>
+        <tr>
+            <td>Foundation</td>
+            <td>20 rupees</td>
+            <td><button onclick="buyProduct('Foundation', 20, this)">Buy</button></td>
+            <td class="status"></td>
+        </tr>
+        <tr>
+            <td>Mascara</td>
+            <td>15 rupees</td>
+            <td><button onclick="buyProduct('Mascara', 15, this)">Buy</button></td>
+            <td class="status"></td>
+        </tr>
+    </table>
+    
+    <h2>Selected Products</h2>
+    <table id="purchaseTable">
+        <tr>
+            <th>Product</th>
+            <th>Price</th>
+            <th>Date</th>
+            <th>Action</th>
+        </tr>
+    </table>
+    
+    <h2>Total Price: <span id="totalPrice">0</span> rupees</h2>
+    <h2>Thank you, Visit Again!</h2>
+
+    <script>
+        let purchases = [];
+        function buyProduct(product, price, btn) {
+            let currentDate = new Date().toLocaleDateString();
+            purchases.push({ product, price, date: currentDate });
+            alert(product + " added to the purchase list!");
+            
+            let table = document.getElementById("purchaseTable");
+            let row = table.insertRow();
+            row.insertCell(0).innerText = product;
+            row.insertCell(1).innerText = price + " rupees";
+            row.insertCell(2).innerText = currentDate;
+            
+            let deleteCell = row.insertCell(3);
+            let deleteBtn = document.createElement("button");
+            deleteBtn.innerText = "Delete";
+            deleteBtn.className = "delete-btn";
+            deleteBtn.onclick = function() {
+                row.remove();
+                purchases = purchases.filter(p => p.product !== product);
+                updateTotalPrice();
+                resetProductStatus(product);
+            };
+            deleteCell.appendChild(deleteBtn);
+            
+            btn.disabled = true;
+            btn.parentElement.nextElementSibling.innerHTML = "✔";
+            btn.parentElement.nextElementSibling.classList.add("selected");
+            updateTotalPrice();
+        }
+
+        function updateTotalPrice() {
+            let totalPrice = purchases.reduce((sum, item) => sum + item.price, 0);
+            document.getElementById("totalPrice").innerText = totalPrice;
+        }
+
+        function resetProductStatus(product) {
+            let rows = document.querySelectorAll("table tr");
+            rows.forEach(row => {
+                if (row.cells[0] && row.cells[0].innerText === product) {
+                    let btn = row.cells[2].querySelector("button");
+                    let statusCell = row.cells[3];
+                    btn.disabled = false;
+                    statusCell.innerHTML = "";
+                    statusCell.classList.remove("selected");
+                }
+            });
+        }
+    </script>
+</body>
+</html>
+
+
+
+
