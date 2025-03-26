@@ -4,13 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cosmetic Shop</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
             text-align: center;
+            background-color: #fce4ec;
         }
-        table {
-            width: 70%;
+        .container {
+            margin-top: 20px;
+        }
+        .product-table, .purchase-table {
+            width: 80%;
             margin: 20px auto;
             border-collapse: collapse;
         }
@@ -20,76 +26,81 @@
             text-align: center;
         }
         th {
-            background-color: #f2b5d4;
-        }
-        button {
-            background-color: #ff69b4;
+            background-color: #ec407a;
             color: white;
-            padding: 5px 10px;
-            border: none;
-            cursor: pointer;
+        }
+        .btn {
+            background-color: #d81b60;
         }
         .delete-btn {
             background-color: red;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            cursor: pointer;
         }
         .selected {
             color: green;
             font-weight: bold;
         }
+        .search-container {
+            margin: 20px auto;
+            width: 60%;
+        }
     </style>
 </head>
 <body>
-    <h1>Welcome to Our Cosmetic Shop</h1>
-    <table>
-        <tr>
-            <th>Product</th>
-            <th>Price</th>
-            <th>Action</th>
-            <th>Status</th>
-        </tr>
-        <tr>
-            <td>Lipstick</td>
-            <td>10 rupees</td>
-            <td><button onclick="buyProduct('Lipstick', 10, this)">Buy</button></td>
-            <td class="status"></td>
-        </tr>
-        <tr>
-            <td>Foundation</td>
-            <td>20 rupees</td>
-            <td><button onclick="buyProduct('Foundation', 20, this)">Buy</button></td>
-            <td class="status"></td>
-        </tr>
-        <tr>
-            <td>Mascara</td>
-            <td>15 rupees</td>
-            <td><button onclick="buyProduct('Mascara', 15, this)">Buy</button></td>
-            <td class="status"></td>
-        </tr>
-    </table>
+    <div class="container">
+        <h1 class="pink-text text-darken-2">Welcome to Our Cosmetic Shop</h1>
+        
+        <div class="search-container">
+            <input type="text" id="searchBox" class="browser-default" placeholder="Search product..." onkeyup="searchProduct()">
+        </div>
+        
+        <table class="striped product-table" id="productTable">
+            <tr>
+                <th>Product</th>
+                <th>Price</th>
+                <th>Action</th>
+                <th>Status</th>
+            </tr>
+            <tr>
+                <td>Lipstick</td>
+                <td>10 rupees</td>
+                <td><button class="btn" onclick="buyProduct('Lipstick', 10, this)">Buy</button></td>
+                <td class="status"></td>
+            </tr>
+            <tr>
+                <td>Foundation</td>
+                <td>20 rupees</td>
+                <td><button class="btn" onclick="buyProduct('Foundation', 20, this)">Buy</button></td>
+                <td class="status"></td>
+            </tr>
+            <tr>
+                <td>Mascara</td>
+                <td>15 rupees</td>
+                <td><button class="btn" onclick="buyProduct('Mascara', 15, this)">Buy</button></td>
+                <td class="status"></td>
+            </tr>
+        </table>
+        
+        <h2 class="pink-text text-darken-2">Selected Products</h2>
+        <table class="striped purchase-table" id="purchaseTable">
+            <tr>
+                <th>Product</th>
+                <th>Price</th>
+                <th>Date</th>
+                <th>Action</th>
+            </tr>
+        </table>
+        
+        <h2 class="pink-text text-darken-2">Total Price: <span id="totalPrice">0</span> rupees</h2>
+        <h2 class="blue-text text-darken-2">Thank you, Visit Again!</h2>
+    </div>
     
-    <h2>Selected Products</h2>
-    <table id="purchaseTable">
-        <tr>
-            <th>Product</th>
-            <th>Price</th>
-            <th>Date</th>
-            <th>Action</th>
-        </tr>
-    </table>
-    
-    <h2>Total Price: <span id="totalPrice">0</span> rupees</h2>
-    <h2>Thank you, Visit Again!</h2>
-
     <script>
         let purchases = [];
+        
         function buyProduct(product, price, btn) {
             let currentDate = new Date().toLocaleDateString();
             purchases.push({ product, price, date: currentDate });
-            alert(product + " added to the purchase list!");
+            M.toast({html: product + " added to the purchase list!", classes: 'rounded'});
             
             let table = document.getElementById("purchaseTable");
             let row = table.insertRow();
@@ -100,7 +111,7 @@
             let deleteCell = row.insertCell(3);
             let deleteBtn = document.createElement("button");
             deleteBtn.innerText = "Delete";
-            deleteBtn.className = "delete-btn";
+            deleteBtn.className = "btn delete-btn";
             deleteBtn.onclick = function() {
                 row.remove();
                 purchases = purchases.filter(p => p.product !== product);
@@ -121,7 +132,7 @@
         }
 
         function resetProductStatus(product) {
-            let rows = document.querySelectorAll("table tr");
+            let rows = document.querySelectorAll(".product-table tr");
             rows.forEach(row => {
                 if (row.cells[0] && row.cells[0].innerText === product) {
                     let btn = row.cells[2].querySelector("button");
@@ -132,10 +143,21 @@
                 }
             });
         }
+        
+        function searchProduct() {
+            let input = document.getElementById("searchBox").value.toLowerCase();
+            let table = document.getElementById("productTable");
+            let rows = table.getElementsByTagName("tr");
+            
+            for (let i = 1; i < rows.length; i++) {
+                let productName = rows[i].getElementsByTagName("td")[0].innerText.toLowerCase();
+                if (productName.includes(input)) {
+                    rows[i].style.display = "";
+                } else {
+                    rows[i].style.display = "none";
+                }
+            }
+        }
     </script>
 </body>
 </html>
-
-
-
-
